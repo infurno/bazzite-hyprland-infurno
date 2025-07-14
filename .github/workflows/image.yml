@@ -1,0 +1,13 @@
+name: Build Bazzite Hyprland Image
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    uses: ublue-os/ublue-main/.github/workflows/image.yml@main
+    with:
+      image-name: bazzite-hyprland-hal
+

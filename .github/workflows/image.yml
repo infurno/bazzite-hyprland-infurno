@@ -30,7 +30,7 @@ jobs:
             --output output/iso/
 
       - name: Upload ISO artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: bazzite-hyprland.iso
           path: output/iso/*.iso

@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    uses: ublue-os/ublue-main/.github/workflows/image.yaml@main
+    uses: ublue-os/bluebuild/.github/workflows/release.yml@main
     with:
-      image-name: bazzite-hyprland-infurno
+      image_name: bazzite-hyprland-infurno
 

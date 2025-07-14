@@ -1,0 +1,36 @@
+name: Build Bazzite Hyprland Image
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  IMAGE_NAME: bazzite-hyprland-infurno
+  IMAGE_REGISTRY: ghcr.io/${{ github.repository_owner }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Install buildah
+        run: |
+          sudo apt update
+          sudo apt install -y buildah podman skopeo
+
+      - name: Build image with buildah
+        run: |
+          buildah bud --tag $IMAGE_REGISTRY/$IMAGE_NAME:latest -f ./containers/bazzite-hyprland.yaml .
+
+      - name: Push to GHCR
+        env:
+          CR_PAT: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo $CR_PAT | podman login ghcr.io -u ${{ github.actor }} --password-stdin
+          podman push $IMAGE_REGISTRY/$IMAGE_NAME:latest
+
+      # Optional: Build ISO (requires custom tooling or setup script)
+

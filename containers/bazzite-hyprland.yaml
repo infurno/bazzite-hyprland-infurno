@@ -1,0 +1,68 @@
+name: bazzite-hyprland-infurno
+description: "Custom Bazzite Hyprland image for Framework 13 with Fish, quickshell, dev tools, and performance optimizations"
+base-image: ghcr.io/ublue-os/bazzite-hyprland
+
+modules:
+  - type: rpm-ostree
+    install:
+      - fish
+      - starship
+      - git
+      - neovim
+      - zellij
+      - bat
+      - eza
+      - ripgrep
+      - fd-find
+      - fzf
+      - tmux
+      - lazygit
+      - docker
+      - podman
+      - podman-compose
+      - openssh
+      - jq
+      - yq
+      - python3-pip
+      - go
+      - wl-clipboard
+      - grim
+      - slurp
+      - power-profiles-daemon
+      - zram-generator
+      - flatpak
+      - curl
+      - wget
+      - jetbrains-mono-nf-fonts
+
+  - type: default-flatpaks
+    install:
+      - com.visualstudio.code.insiders
+      - com.jetbrains.Toolbox
+      - org.mozilla.firefox
+      - com.github.tchx84.Flatseal
+      - com.github.Matoking.protontricks
+
+  - type: systemd
+    system:
+      enabled:
+        - docker
+        - podman.socket
+        - power-profiles-daemon
+        - zramswap.service
+
+  - type: files
+    files:
+      - source: chezmoi
+        destination: /etc/skel
+
+  - type: script
+    scripts:
+      - run: chezmoi init --source /etc/skel/chezmoi && chezmoi apply
+        description: "Apply user dotfiles on first login"
+
+  - type: systemd
+    user:
+      enabled:
+        - graphical-session.target
+

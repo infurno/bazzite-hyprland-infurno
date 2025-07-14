@@ -1,4 +1,4 @@
-name: Build Bazzite Hyprland Image
+name: Build Bazzite Hyprland Disk
 
 on:
   push:
@@ -6,15 +6,24 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
-    uses: ublue-os/image-template/.github/workflows/build.yml@main
-    with:
-      image_name: bazzite-hyprland-infurno
   disk:
-    needs: build
-    uses: ublue-os/image-template/.github/workflows/build-disk.yml@main
-    with:
-      IMAGE_REGISTRY: ghcr.io/${{ github.repository_owner }}
-      IMAGE_NAME: bazzite-hyprland-infurno
-      DEFAULT_TAG: latest
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup uBlue
+        uses: ublue-os/image-template/.github/workflows/setup-host.yml@main
+
+      - name: Build disk ISO
+        uses: ublue-os/image-template/.github/workflows/build-disk.yml@main
+        with:
+          IMAGE_REGISTRY: ghcr.io/${{ github.repository_owner }}
+          IMAGE_NAME: bazzite-hyprland-infurno
+          DEFAULT_TAG: latest
+
+      - name: Upload ISO artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: bazzite-hyprland.iso
+          path: output/
 

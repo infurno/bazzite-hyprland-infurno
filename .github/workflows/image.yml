@@ -7,7 +7,14 @@ on:
 
 jobs:
   build:
-    uses: ublue-os/bluebuild/.github/workflows/release.yml@main
+    uses: ublue-os/image-template/.github/workflows/build.yml@main
     with:
       image_name: bazzite-hyprland-infurno
+  disk:
+    needs: build
+    uses: ublue-os/image-template/.github/workflows/build-disk.yml@main
+    with:
+      IMAGE_REGISTRY: ghcr.io/${{ github.repository_owner }}
+      IMAGE_NAME: bazzite-hyprland-infurno
+      DEFAULT_TAG: latest
 

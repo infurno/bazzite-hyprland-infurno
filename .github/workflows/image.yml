@@ -1,37 +1,36 @@
-name: Build Bazzite Hyprland Image & ISO
+name: Build Bazzite Hyprland Image
 
 on:
   push:
     branches: [main]
   workflow_dispatch:
 
+env:
+  IMAGE_NAME: bazzite-hyprland-infurno
+  IMAGE_REGISTRY: ghcr.io/${{ github.repository_owner }}
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
+      - name: Checkout repo
         uses: actions/checkout@v3
 
-      - name: Set up uBlue CLI
+      - name: Install buildah
         run: |
-          sudo apt update && sudo apt install -y curl
-          curl -sL https://raw.githubusercontent.com/ublue-os/ublue-os/main/install.sh | sudo bash
+          sudo apt update
+          sudo apt install -y buildah podman skopeo
 
-      - name: Build container image
+      - name: Build image with buildah
         run: |
-          ublue build containers/bazzite-hyprland.yaml \
-            --push \
-            --registry ghcr.io/${{ github.repository_owner }} \
-            --tag latest
+          buildah bud --tag $IMAGE_REGISTRY/$IMAGE_NAME:latest -f ./containers/bazzite-hyprland.yaml .
 
-      - name: Build bootable ISO
+      - name: Push to GHCR
+        env:
+          CR_PAT: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          ublue disk -c containers/bazzite-hyprland.yaml \
-            --output output/iso/
+          echo $CR_PAT | podman login ghcr.io -u ${{ github.actor }} --password-stdin
+          podman push $IMAGE_REGISTRY/$IMAGE_NAME:latest
 
-      - name: Upload ISO artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: bazzite-hyprland.iso
-          path: output/iso/*.iso
+      # Optional: Build ISO (requires custom tooling or setup script)
 

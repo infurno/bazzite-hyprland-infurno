@@ -1,4 +1,4 @@
-name: Build Bazzite Hyprland Image
+name: Build Bazzite Hyprland Image & ISO
 
 on:
   push:
@@ -7,15 +7,31 @@ on:
 
 jobs:
   build:
-    uses: ublue-os/image-template/.github/workflows/build.yml@main
-    with:
-      image_name: bazzite-hyprland-infurno
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-  disk:
-    needs: build
-    uses: ublue-os/image-template/.github/workflows/disk.yml@main
-    with:
-      IMAGE_NAME: bazzite-hyprland-infurno
-      IMAGE_REGISTRY: ghcr.io/${{ github.repository_owner }}
-      DEFAULT_TAG: latest
+      - name: Set up uBlue CLI
+        run: |
+          sudo apt update && sudo apt install -y curl
+          curl -sL https://raw.githubusercontent.com/ublue-os/ublue-os/main/install.sh | sudo bash
+
+      - name: Build container image
+        run: |
+          ublue build containers/bazzite-hyprland.yaml \
+            --push \
+            --registry ghcr.io/${{ github.repository_owner }} \
+            --tag latest
+
+      - name: Build bootable ISO
+        run: |
+          ublue disk -c containers/bazzite-hyprland.yaml \
+            --output output/iso/
+
+      - name: Upload ISO artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: bazzite-hyprland.iso
+          path: output/iso/*.iso
 
